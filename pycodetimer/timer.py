@@ -1,23 +1,31 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import typing
 from inspect import isfunction
 from time import perf_counter
 
 
 class Timer(object):
-    def __init__(self, name=None, logger_level: int = logging.DEBUG, unit: str = 'auto'):
-        if isfunction(name):
-            self.func = name
+
+    def __init__(self, name_or_func: typing.Any = None, unit: str = 'auto'):
+        """
+        :param name_or_func: name of function, or function itself, user should not care about this parameter
+        :param unit: time's unit, should be one of 's', 'ms' or 'auto'
+        """
+        if unit not in ['s', 'ms', 'auto']:
+            raise AssertionError(f"field unit should be one of 's', 'ms', 'auto', got {unit}")
+
+        if isfunction(name_or_func):
+            self.func = name_or_func
             self.name = None
         else:
-            self.name: str = name
+            self.func = None
+            self.name: str = name_or_func
 
-        self.logger_level: int = logger_level
         self.unit: str = unit
 
         self.logger: logging.Logger = logging.getLogger('timer')
-        self.logger.setLevel(logger_level)
 
         self.begin: float = ...
         self.end: float = ...
@@ -44,7 +52,8 @@ class Timer(object):
         self.stop('timer' if self.name is None else self.name)
 
     def __call__(self, *args, **kwargs):
-        if isfunction(args[0]):
+
+        if self.func is None:
             func = args[0]
 
             def wrapper(*_args, **_kwargs):
