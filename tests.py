@@ -4,7 +4,7 @@ import logging
 import time
 import unittest
 
-from pycodetimer import timer
+from timer import timer
 
 logging.basicConfig(level=logging.DEBUG)
 
