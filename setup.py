@@ -10,13 +10,13 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as file:
     long_description = file.read()
 
 setup(
-    name='pycodetimer',
-    version='0.0.2',
+    name='timer',
+    version='0.0.3',
     author='Lucien Shui',
     author_email='lucien@lucien.ink',
-    url='https://github.com/LucienShui/pycodetimer',
+    url='https://github.com/LucienShui/timer',
     description=u'Python Code Timer',
-    packages=['pycodetimer'],
+    packages=['timer'],
     long_description=long_description,
     long_description_content_type='text/markdown'
 )
