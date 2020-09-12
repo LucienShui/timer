@@ -39,16 +39,25 @@ pip install timer
     def func(): ...
     ```
    
-6. block wise
+6. block wise without object
 
     ```py
     with timer():
         ...
+        print(t.elapse)
+    ```
+   
+7. block wise with object
+   
+    ```py
+    with timer() as t:
+        ...
+        print(t.elapse)
     ```
 
 ## Sample Code
 
-```py
+```python
 import logging
 import time
 
@@ -74,9 +83,13 @@ def sub(a, b):
 
 if __name__ == '__main__':
     # 'timer' would be timer's name by default
-    with timer('time.sleep(2)'):
+    with timer('time.sleep(2)') as t:
         print(3)
-        time.sleep(2)
+        time.sleep(1)
+        print(f'after time.sleep(1) once, t.elapse = {t.elapse}')
+        time.sleep(1)
+        print(f'after time.sleep(1) twice, t.elapse = {t.elapse}')
+    print(f'after with, t.elapse = {t.elapse}')
 
     print(add(1, 1))
     print(sub(2, 1))
@@ -86,7 +99,10 @@ if __name__ == '__main__':
 
 ```plain
 3
-DEBUG:timer.time.sleep(2): 2.004 s
+after time.sleep(1) once, t.elapse = 1.003798776
+after time.sleep(1) twice, t.elapse = 2.0052743459999998
+DEBUG:timer.time.sleep(2): 2.006 s
+after with, t.elapse = 2.005628447
 DEBUG:timer.function:add: 0.105 s
 2
 DEBUG:timer.sub: 102 ms
