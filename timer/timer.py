@@ -17,54 +17,61 @@ class Timer(object):
             raise AssertionError(f"field unit should be one of 's', 'ms', 'auto', got {unit}")
 
         if isfunction(name_or_func):
-            self.func = name_or_func
-            self.name = None
+            self._func = name_or_func
+            self._name = None
         else:
-            self.func = None
-            self.name: str = name_or_func
+            self._func = None
+            self._name: str = name_or_func
 
-        self.unit: str = unit
+        self._unit: str = unit
 
-        self.logger: logging.Logger = logging.getLogger('timer')
+        self._logger: logging.Logger = logging.getLogger('timer')
 
-        self.begin: float = ...
-        self.end: float = ...
-        self.elapse: float = ...
+        self._begin: float = ...
+        self._end: float = ...
+        self._elapse: float = ...
 
-    def start(self):
-        self.begin = perf_counter()
+    @property
+    def elapse(self) -> float:
+        if self._elapse is ...:
+            return perf_counter() - self._begin
+        return self._elapse
 
-    def stop(self, name: str) -> None:
-        self.end = perf_counter()
-        self.elapse: float = self.end - self.begin
+    def _start(self):
+        self._begin = perf_counter()
 
-        logger = self.logger.getChild(name)
+    def _stop(self, name: str) -> None:
+        self._end = perf_counter()
+        self._elapse: float = self._end - self._begin
 
-        if self.unit == 'ms' or (self.unit == 'auto' and self.elapse < 1):
-            logger.debug(f'{self.elapse * 1000: .0f} ms')
+        logger = self._logger.getChild(name)
+
+        if self._unit == 'ms' or (self._unit == 'auto' and self._elapse < 1):
+            logger.debug(f'{self._elapse * 1000: .0f} ms')
         else:
-            logger.debug(f'{self.elapse: .3f} s')
+            logger.debug(f'{self._elapse: .3f} s')
 
     def __enter__(self):
-        self.start()
+        self._start()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop('timer' if self.name is None else self.name)
+        self._stop('timer' if self._name is None else self._name)
 
     def __call__(self, *args, **kwargs):
 
-        if self.func is None:
+        if self._func is None:
             func = args[0]
 
             def wrapper(*_args, **_kwargs):
-                self.__enter__()
+                self._start()
                 _result = func(*_args, **_kwargs)
-                self.stop(func.__name__ if self.name is None else self.name)
+                self._stop(func.__name__ if self._name is None else self._name)
                 return _result
 
             return wrapper
         else:
-            self.__enter__()
-            result = self.func(*args, **kwargs)
-            self.stop(self.func.__name__ if self.name is None else self.name)
+            self._start()
+            result = self._func(*args, **kwargs)
+            self._stop(self._func.__name__ if self._name is None else self._name)
             return result
