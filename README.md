@@ -44,7 +44,6 @@ pip install timer
     ```py
     with timer():
         ...
-        print(t.elapse)
     ```
    
 7. block wise with object
