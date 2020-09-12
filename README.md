@@ -1,18 +1,18 @@
-# PyCodeTimer
+# Timer
 
 Python code timer, support block wise and function wise
 
 ## Installation
 
 ```shell
-pip install pycodetimer
+pip install timer
 ```
 
 ## Usage
 
 1. import
     ```py
-    from pycodetimer import timer
+    from timer import timer
     ```
 
 2. decorate without brackets
@@ -38,6 +38,13 @@ pip install pycodetimer
     @timer(name='function name', unit='s')
     def func(): ...
     ```
+   
+6. block wise
+
+    ```py
+    with timer():
+        ...
+    ```
 
 ## Sample Code
 
@@ -45,7 +52,7 @@ pip install pycodetimer
 import logging
 import time
 
-from pycodetimer import timer
+from timer import timer
 
 # timer would print nothing without this line or logging level is info or higher
 logging.basicConfig(level=logging.DEBUG)
