@@ -11,7 +11,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as file:
 
 setup(
     name='timer',
-    version='0.0.3',
+    version='0.1.0',
     author='Lucien Shui',
     author_email='lucien@lucien.ink',
     url='https://github.com/LucienShui/timer',
