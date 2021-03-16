@@ -23,6 +23,12 @@ def sub(a, b):
     return a - b
 
 
+class Test:
+    @timer
+    def say_something(self, something):
+        print(something)
+
+
 class TestCase(unittest.TestCase):
     def test_something(self):
         # 'timer' would be timer's name by default
@@ -32,6 +38,9 @@ class TestCase(unittest.TestCase):
             time.sleep(1)
             print(f'after time.sleep(1) twice, t.elapse = {t.elapse}')
         print(f'after with, t.elapse = {t.elapse}')
+
+        test: Test = Test()
+        test.say_something('Hello World!')
 
         self.assertEqual(2, add(1, 1))
         self.assertEqual(1, sub(2, 1))
