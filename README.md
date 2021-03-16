@@ -107,3 +107,7 @@ DEBUG:timer.function:add: 0.105 s
 DEBUG:timer.sub: 102 ms
 1
 ```
+
+## Special Thanks
+
+[@Krzysztof S](https://github.com/papierukartka)
