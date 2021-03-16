@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import types
 import typing
 from inspect import isfunction
 from time import perf_counter
@@ -37,7 +38,9 @@ class Timer(object):
             return perf_counter() - self._begin
         return self._elapse
 
-    def _start(self):
+    def _start(self, name: str) -> None:
+        logger = self._logger.getChild(name)
+        logger.debug('start')
         self._begin = perf_counter()
 
     def _stop(self, name: str) -> None:
@@ -47,16 +50,28 @@ class Timer(object):
         logger = self._logger.getChild(name)
 
         if self._unit == 'ms' or (self._unit == 'auto' and self._elapse < 1):
-            logger.debug(f'{self._elapse * 1000: .0f} ms')
+            logger.debug(f'cost {self._elapse * 1000:.0f} ms')
         else:
-            logger.debug(f'{self._elapse: .3f} s')
+            logger.debug(f'cost {self._elapse:.3f} s')
 
     def __enter__(self):
-        self._start()
+        self._start(self._name or 'timer')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._stop('timer' if self._name is None else self._name)
+        self._stop(self._name or 'timer')
+
+    def __get__(self, instance, owner):
+        """
+        return object itself when decorate function of object
+        (source code copied from web)
+        :param instance: I don't know
+        :param owner: I don't know
+        :return: I don't know
+        """
+        if instance is None:
+            return self
+        return types.MethodType(self, instance)
 
     def __call__(self, *args, **kwargs):
 
@@ -64,14 +79,16 @@ class Timer(object):
             func = args[0]
 
             def wrapper(*_args, **_kwargs):
-                self._start()
+                __name: str = self._name or func.__name__
+                self._start(__name)
                 _result = func(*_args, **_kwargs)
-                self._stop(func.__name__ if self._name is None else self._name)
+                self._stop(__name)
                 return _result
 
             return wrapper
         else:
-            self._start()
+            name: str = self._name or self._func.__name__
+            self._start(name)
             result = self._func(*args, **kwargs)
-            self._stop(self._func.__name__ if self._name is None else self._name)
+            self._stop(name)
             return result
