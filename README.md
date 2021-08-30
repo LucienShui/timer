@@ -60,10 +60,14 @@ pip install timer
 import logging
 import time
 
-from timer import timer
+from timer import timer, get_timer
 
-# timer would print nothing without this line or logging level is info or higher
+# default timer using logging level with logging.DEBUG
+# so timer would print nothing if logging level is logging.INFO or higher
 logging.basicConfig(level=logging.DEBUG)
+
+# you can get a timer with custom logging level with get_timer(level)
+warning_timer = get_timer(logging.WARNING)
 
 
 # explicit the timer's name and it's time unit
@@ -89,6 +93,9 @@ if __name__ == '__main__':
         time.sleep(1)
         print(f'after time.sleep(1) twice, t.elapse = {t.elapse}')
     print(f'after with, t.elapse = {t.elapse}')
+    
+    with warning_timer('test'):
+       pass
 
     print(add(1, 1))
     print(sub(2, 1))
@@ -102,6 +109,8 @@ after time.sleep(1) once, t.elapse = 1.003798776
 after time.sleep(1) twice, t.elapse = 2.0052743459999998
 DEBUG:timer.time.sleep(2): 2.006 s
 after with, t.elapse = 2.005628447
+WARNING:timer.test:start
+WARNING:timer.test:cost 0 ms
 DEBUG:timer.function:add: 0.105 s
 2
 DEBUG:timer.sub: 102 ms

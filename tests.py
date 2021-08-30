@@ -4,7 +4,7 @@ import logging
 import time
 import unittest
 
-from timer import timer
+from timer import timer, get_timer
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -44,6 +44,11 @@ class TestCase(unittest.TestCase):
 
         self.assertEqual(2, add(1, 1))
         self.assertEqual(1, sub(2, 1))
+
+    def test_info_level(self):
+        t = get_timer(logging.WARNING)
+        with t('warning test'):
+            pass
 
 
 if __name__ == '__main__':
