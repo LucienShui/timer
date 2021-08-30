@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 # read the contents of your README file
 from os import path
 

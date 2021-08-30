@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from .__version__ import __version__, __version_info__
 from .timer import get_timer
 
