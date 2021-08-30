@@ -62,11 +62,14 @@ import time
 
 from timer import timer, get_timer
 
-# default timer using logging level with logging.DEBUG
+# default timer's logging level is logging.DEBUG
 # so timer would print nothing if logging level is logging.INFO or higher
 logging.basicConfig(level=logging.DEBUG)
 
-# you can get a timer with custom logging level with get_timer(level)
+# or you can change default timer's logging level
+timer.set_level(logging.DEBUG)
+
+# also you can get a timer with custom logging level with get_timer(level)
 warning_timer = get_timer(logging.WARNING)
 
 
