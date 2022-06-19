@@ -54,16 +54,16 @@ def get_timer(level: int = logging.DEBUG):
                 return perf_counter() - self._begin
             return self._elapse
 
-        def _start(self, name: str) -> None:
-            logger = self._logger.getChild(name)
+        def _start(self) -> None:
+            logger = self._logger.getChild(self.__name__)
             _log(logger, self._level, 'start')
             self._begin = perf_counter()
 
-        def _stop(self, name: str) -> None:
+        def _stop(self) -> None:
             self._end = perf_counter()
             self._elapse: float = self._end - self._begin
 
-            logger = self._logger.getChild(name)
+            logger = self._logger.getChild(self.__name__)
 
             if self._unit == 'ms' or (self._unit == 'auto' and self._elapse < 1):
                 _log(logger, self._level, f'cost {self._elapse * 1000:.0f} ms')
@@ -71,11 +71,11 @@ def get_timer(level: int = logging.DEBUG):
                 _log(logger, self._level, f'cost {self._elapse:.3f} s')
 
         def __enter__(self):
-            self._start(self.__name__)
+            self._start()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            self._stop(self.__name__)
+            self._stop()
 
         def __get__(self, instance, owner):
             """
@@ -95,16 +95,16 @@ def get_timer(level: int = logging.DEBUG):
                 func = args[0]
 
                 def wrapper(*_args, **_kwargs):
-                    self._start(self.__name__)
+                    self._start()
                     _result = func(*_args, **_kwargs)
-                    self._stop(self.__name__)
+                    self._stop()
                     return _result
 
                 return wrapper
             else:
-                self._start(self.__name__)
+                self._start()
                 result = self._func(*args, **kwargs)
-                self._stop(self.__name__)
+                self._stop()
                 return result
 
         @classmethod
