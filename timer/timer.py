@@ -35,12 +35,10 @@ def get_timer(level: int = logging.DEBUG):
 
             if isfunction(name_or_func):
                 self._func = name_or_func
-                self._name = None
                 self.__name__ = name_or_func.__name__
             else:
                 self._func = None
-                self._name: str = name_or_func
-                self.__name__ = str(name_or_func)
+                self.__name__ = name_or_func or "timer"
 
             self._unit: str = unit
 
@@ -73,11 +71,11 @@ def get_timer(level: int = logging.DEBUG):
                 _log(logger, self._level, f'cost {self._elapse:.3f} s')
 
         def __enter__(self):
-            self._start(self._name or 'timer')
+            self._start(self.__name__)
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            self._stop(self._name or 'timer')
+            self._stop(self.__name__)
 
         def __get__(self, instance, owner):
             """
@@ -97,18 +95,16 @@ def get_timer(level: int = logging.DEBUG):
                 func = args[0]
 
                 def wrapper(*_args, **_kwargs):
-                    __name: str = self._name or func.__name__
-                    self._start(__name)
+                    self._start(self.__name__)
                     _result = func(*_args, **_kwargs)
-                    self._stop(__name)
+                    self._stop(self.__name__)
                     return _result
 
                 return wrapper
             else:
-                name: str = self._name or self._func.__name__
-                self._start(name)
+                self._start(self.__name__)
                 result = self._func(*args, **kwargs)
-                self._stop(name)
+                self._stop(self.__name__)
                 return result
 
         @classmethod
