@@ -36,9 +36,11 @@ def get_timer(level: int = logging.DEBUG):
             if isfunction(name_or_func):
                 self._func = name_or_func
                 self._name = None
+                self.__name__ = name_or_func.__name__
             else:
                 self._func = None
                 self._name: str = name_or_func
+                self.__name__ = str(name_or_func)
 
             self._unit: str = unit
 
