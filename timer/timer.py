@@ -93,6 +93,7 @@ def get_timer(level: int = logging.DEBUG):
 
             if self._func is None:
                 func = args[0]
+                self.__name__ = func.__name__ # now we know the decorated func
 
                 def wrapper(*_args, **_kwargs):
                     self._start()
