@@ -35,10 +35,10 @@ def get_timer(level: int = logging.DEBUG):
 
             if isfunction(name_or_func):
                 self._func = name_or_func
-                self._name = None
+                self.__name__ = name_or_func.__name__
             else:
                 self._func = None
-                self._name: str = name_or_func
+                self.__name__ = name_or_func or "timer"
 
             self._unit: str = unit
 
@@ -54,16 +54,16 @@ def get_timer(level: int = logging.DEBUG):
                 return perf_counter() - self._begin
             return self._elapse
 
-        def _start(self, name: str) -> None:
-            logger = self._logger.getChild(name)
+        def _start(self) -> None:
+            logger = self._logger.getChild(self.__name__)
             _log(logger, self._level, 'start')
             self._begin = perf_counter()
 
-        def _stop(self, name: str) -> None:
+        def _stop(self) -> None:
             self._end = perf_counter()
             self._elapse: float = self._end - self._begin
 
-            logger = self._logger.getChild(name)
+            logger = self._logger.getChild(self.__name__)
 
             if self._unit == 'ms' or (self._unit == 'auto' and self._elapse < 1):
                 _log(logger, self._level, f'cost {self._elapse * 1000:.0f} ms')
@@ -71,11 +71,11 @@ def get_timer(level: int = logging.DEBUG):
                 _log(logger, self._level, f'cost {self._elapse:.3f} s')
 
         def __enter__(self):
-            self._start(self._name or 'timer')
+            self._start()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            self._stop(self._name or 'timer')
+            self._stop()
 
         def __get__(self, instance, owner):
             """
@@ -93,20 +93,19 @@ def get_timer(level: int = logging.DEBUG):
 
             if self._func is None:
                 func = args[0]
+                self.__name__ = func.__name__ # now we know the decorated func
 
                 def wrapper(*_args, **_kwargs):
-                    __name: str = self._name or func.__name__
-                    self._start(__name)
+                    self._start()
                     _result = func(*_args, **_kwargs)
-                    self._stop(__name)
+                    self._stop()
                     return _result
 
                 return wrapper
             else:
-                name: str = self._name or self._func.__name__
-                self._start(name)
+                self._start()
                 result = self._func(*args, **kwargs)
-                self._stop(name)
+                self._stop()
                 return result
 
         @classmethod
