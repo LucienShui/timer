@@ -10,14 +10,14 @@ logging.basicConfig(level=logging.DEBUG)
 # explicit the timer's name and it's time unit
 @timer('function:add', unit='s')
 def add(a, b):
-    time.sleep(.1)
+    time.sleep(.5)
     return a + b
 
 
 # function name is timer's name for default
 @timer
 def sub(a, b):
-    time.sleep(.1)
+    time.sleep(.2)
     return a - b
 
 
@@ -28,7 +28,7 @@ class Test:
 
 
 class TestCase(unittest.TestCase):
-    def test_something(self):
+    def test_elapse(self):
         # 'timer' would be timer's name by default
         with timer('time.sleep(2)') as t:
             time.sleep(1)
@@ -43,7 +43,11 @@ class TestCase(unittest.TestCase):
         self.assertEqual(2, add(1, 1))
         self.assertEqual(1, sub(2, 1))
 
-    def test_info_level(self):
+    def test_function(self):
+        add(1, 2)
+        sub(3, 4)
+
+    def test_warning_level(self):
         t = get_timer(logging.WARNING)
         with t('warning test'):
             pass

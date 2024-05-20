@@ -1,6 +1,6 @@
 import logging
+from typing import Any, Callable
 import types
-import typing
 from inspect import isfunction
 from time import perf_counter
 
@@ -20,12 +20,27 @@ def _log(logger: logging.Logger, level: int, message: str):
         raise AssertionError('wrong level')
 
 
-def get_timer(level: int = logging.DEBUG):
+def _get_logger_print_fn(logger: logging.Logger, level: int) -> Callable[[str], None]:
+    if level == logging.DEBUG:
+        return logger.debug
+    if level == logging.INFO:
+        return logger.info
+    if level == logging.WARNING:
+        return logger.warning
+    if level == logging.ERROR:
+        return logger.error
+    if level == logging.CRITICAL:
+        return logger.critical
+    raise AssertionError('wrong level')
+
+
+def get_timer(level: int = None, print_fn: Callable[[str], None] = None):
     class Timer(object):
 
         _level = level
+        _print_fn = print_fn
 
-        def __init__(self, name_or_func: typing.Any = None, unit: str = 'auto'):
+        def __init__(self, name_or_func: Any = None, unit: str = 'auto'):
             """
             :param name_or_func: name of function, or function itself, user should not care about this parameter
             :param unit: time's unit, should be one of 's', 'ms' or 'auto'
@@ -46,29 +61,32 @@ def get_timer(level: int = logging.DEBUG):
 
             self._begin: float = ...
             self._end: float = ...
-            self._elapse: float = ...
+
+        def _log(self, message: str, name: str = None) -> None:
+            if self._print_fn is not None:
+                pass
+            if self._level is not None:
+                if name is not None:
+                    _log(self._logger.getChild(name), self._level, message)
 
         @property
-        def elapse(self) -> float:
-            if self._elapse is ...:
-                return perf_counter() - self._begin
-            return self._elapse
+        def elapse(self) -> int:
+            if self._end is ...:
+                end = perf_counter()
+            else:
+                end = self._end
+            return round((end - self._begin) * 1000)
 
         def _start(self, name: str) -> None:
-            logger = self._logger.getChild(name)
-            _log(logger, self._level, 'start')
+            self._log('start', name=name)
             self._begin = perf_counter()
 
         def _stop(self, name: str) -> None:
             self._end = perf_counter()
-            self._elapse: float = self._end - self._begin
-
-            logger = self._logger.getChild(name)
-
-            if self._unit == 'ms' or (self._unit == 'auto' and self._elapse < 1):
-                _log(logger, self._level, f'cost {self._elapse * 1000:.0f} ms')
+            if self._unit == 'ms' or (self._unit == 'auto' and self.elapse < 1000):
+                self._log(f'cost {self.elapse} ms', name=name)
             else:
-                _log(logger, self._level, f'cost {self._elapse:.3f} s')
+                self._log(f'cost {self.elapse / 1000:.3f} s', name=name)
 
         def __enter__(self):
             self._start(self._name or 'timer')
